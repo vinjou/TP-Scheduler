@@ -31,16 +31,16 @@ void task_register(const char *name, uint32_t period_ms, uint32_t max_runs, void
     
     if (task_count <= MAX_TASKS)
     {
-        task_t new_task = {
-        .name = name,
-        .period_ms = period_ms,
-        .max_runs = max_runs,
-        .run_count = 0,
-        .last_run_ms = 0,
-        .func = func,
+        task_t t = {
+            .name = name,
+            .period_ms = period_ms,
+            .max_runs = max_runs,
+            .run_count = 0,
+            .last_run_ms = 0,
+            .func = func,
         };
 
-        tasks[task_count] = new_task;
+        tasks[task_count] = t;
         task_count++;
 
         printf("Register task %s, id = %d \n", name, task_count);
@@ -88,8 +88,8 @@ int main(void) {
 
         for (int i = 0; i < task_count; i++)
         {
-            // Check if tasks[i] period has run out, OR if task has never been run
-            if ((tasks[i].last_run_ms - get_time_ms() > tasks[i].period_ms) || tasks[i].last_run_ms == 0)
+            // Check if task period has run out, or if task has never been run
+            if ((tasks[i].last_run_ms - get_time_ms()) > tasks[i].period_ms)
             {
                 // Check for remaining runs
                 if(tasks[i].run_count < tasks[i].max_runs)
