@@ -18,6 +18,7 @@ typedef struct {
 
 static task_t tasks[MAX_TASKS];
 static int task_count = 0;
+static int active_task_count = 0;
 
 uint64_t get_time_ms(void) {
     struct timespec tspec;
@@ -73,6 +74,8 @@ int main(void) {
     task_register("SensorTask", 100, 12, task_1_handler); // Runs 12 times
     task_register("LoggerTask", 500, 2, task_2_handler); // Runs 2 time
 
+    active_task_count = task_count;
+
     while (true) {
 
         for (int i = 0; i < task_count; i++)
@@ -91,8 +94,20 @@ int main(void) {
 
                     // Increment run_count
                     tasks[i].run_count++;
+
+                    // Max run count has been reached -> decrement active task counter
+                    if (tasks[i].run_count == tasks[i].max_runs)
+                    {
+                        active_task_count--;
+                    }
                 }
             }
+        }
+
+        if (!active_task_count)
+        {
+            printf("All tasks have been executed. Exiting...");
+            break;
         }
     }
 
