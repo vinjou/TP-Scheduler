@@ -62,12 +62,20 @@ void ms_sleep(int ms)
     nanosleep(&tspec, NULL);
 }
 
+void print_task_stats(int task_id)
+{
+    task_t t = tasks[task_id-1];
+    printf("| Run %02d/%02d, delay %d ms \n", t.run_count, t.max_runs, t.last_run_ms - get_time_ms());
+}
+
 void task_1_handler(void) {
-    printf("-> Task 1 logic executed\n");
+    printf("-> Task 1 logic executed ");
+    print_task_stats(1);
 }
 
 void task_2_handler(void) {
-    printf("-> Task 2 logic executed\n");
+    printf("-> Task 2 logic executed ");
+    print_task_stats(2);
 }
 
 int main(void) {
