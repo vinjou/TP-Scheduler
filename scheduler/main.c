@@ -23,7 +23,7 @@ uint64_t get_time_ms(void) {
     struct timespec tspec;
     clock_gettime(CLOCK_REALTIME, &tspec);
 
-    return (tspec.tv_nsec/MSEC_IN_NSEC);
+    return (uint64_t)(tspec.tv_nsec/MSEC_IN_NSEC);
 }
 
 void task_register(const char *name, uint32_t period_ms, uint32_t max_runs, void (*func)(void)) {
@@ -41,10 +41,12 @@ void task_register(const char *name, uint32_t period_ms, uint32_t max_runs, void
 
         tasks[task_count] = new_task;
         task_count++;
+
+        printf("Register task %s, id = %d \n", name, task_count);
     }
     else
     {
-        printf("Error : Maximum number of task reached. Task %s was dropped.", name);
+        printf("Error : Maximum number of task reached. Task %s was dropped. \n", name);
     }
 
 }
@@ -72,7 +74,26 @@ int main(void) {
     task_register("LoggerTask", 500, 2, task_2_handler); // Runs 2 time
 
     while (true) {
-        ms_sleep(100);
+
+        for (int i = 0; i < task_count; i++)
+        {
+            // Check if tasks[i] period has run out, OR if task has never been run
+            if ((tasks[i].last_run_ms - get_time_ms() > tasks[i].period_ms) || tasks[i].last_run_ms == 0)
+            {
+                // Check for remaining runs
+                if(tasks[i].run_count < tasks[i].max_runs)
+                {
+                    // Execute function
+                    tasks[i].func();
+
+                    // Update last_run_ms
+                    tasks[i].last_run_ms = get_time_ms();
+
+                    // Increment run_count
+                    tasks[i].run_count++;
+                }
+            }
+        }
     }
 
     return 0;
