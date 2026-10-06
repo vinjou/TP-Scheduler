@@ -41,9 +41,9 @@ void task_register(const char *name, uint32_t period_ms, uint32_t max_runs, void
         };
 
         tasks[task_count] = t;
-        task_count++;
+        printf("Register task %s, ID = %d \n", name, task_count);
 
-        printf("Register task %s, id = %d \n", name, task_count);
+        task_count++;
     }
     else
     {
@@ -64,18 +64,16 @@ void ms_sleep(int ms)
 
 void print_task_stats(int task_id)
 {
-    task_t t = tasks[task_id-1];
-    printf("| Run %02d/%02d, delay %d ms \n", t.run_count, t.max_runs, t.last_run_ms - get_time_ms());
+    task_t t = tasks[task_id];
+    printf("Task ID = %d | Task name = %s | Run %02d/%02d, delay %d ms \n", task_id, t.name, t.run_count+1, t.max_runs, t.last_run_ms - get_time_ms());
 }
 
 void task_1_handler(void) {
-    printf("-> Task 1 logic executed ");
-    print_task_stats(1);
+    printf("-> Task 1 logic executed\n");
 }
 
 void task_2_handler(void) {
-    printf("-> Task 2 logic executed ");
-    print_task_stats(2);
+    printf("-> Task 2 logic executed\n");
 }
 
 int main(void) {
@@ -96,6 +94,9 @@ int main(void) {
                 {
                     // Execute function
                     tasks[i].func();
+
+                    // Print stats
+                    print_task_stats(i);
 
                     // Update last_run_ms
                     tasks[i].last_run_ms = get_time_ms();
